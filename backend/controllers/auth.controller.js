@@ -68,9 +68,35 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-	res.json({
-		data: 'You hit the login endpoint',
-	});
+	try {
+		const { username, password } = req.body;
+
+		const user = await User.findOne({ username });
+		const isPasswordCorrect = await bcrypt.compare(
+			password,
+			user?.password || ''
+		);
+
+		if (!user || !isPasswordCorrect) {
+			return res.status(400).json({ error: 'Invalid username or password' });
+		}
+
+		generateTokenAndSetCookie(user._id, res);
+		res.status(200).json({
+			_id: user._id,
+			username: user.username,
+			email: user.email,
+			fullName: user.fullName,
+			followers: user.followers,
+			following: user.following,
+			profilePicture: user.profilePicture,
+			coverPicture: user.coverPicture,
+			message: 'User logged in successfully',
+		});
+	} catch (error) {
+		console.error('Error in login', error);
+		res.status(500).json({ error: 'Internal server error' });
+	}
 };
 
 export const logout = async (req, res) => {
