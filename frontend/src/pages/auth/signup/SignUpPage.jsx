@@ -27,8 +27,7 @@ const SignUpPage = () => {
 					body: JSON.stringify({ email, username, fullName, password }),
 				});
 				const data = await res.json();
-				if (!res.ok) throw new Error(data.error);
-				if (data.error) throw new Error(data.error);
+				if (!res.ok) throw new Error(data.error || 'Failed to register user');
 				console.log(data);
 				return data;
 			} catch (error) {
